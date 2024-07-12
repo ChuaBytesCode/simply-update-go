@@ -3,8 +3,28 @@
 # Function to print usage
 usage() {
   echo "Usage: $0 <OS> <architecture> <version>"
-  echo "Example: $0 linux amd 1.22.5"
+  echo "Example: $0 linux amd64 1.22.5"
   exit 1
+}
+
+# Function to update the script if there are updates
+check_for_updates() {
+  git fetch
+
+  LOCAL=$(git rev-parse @)
+  REMOTE=$(git rev-parse @{u})
+
+  if [ $LOCAL != $REMOTE ]; then
+    echo "There are updates available for this script. Do you want to update? (y/n)"
+    read -r response
+    if [[ "$response" == "y" || "$response" == "Y" ]]; then
+      echo "Updating script..."
+      git pull
+      echo "Script updated. Please run the script again."
+      exit 0
+    else
+      echo "Continuing without updating the script..."
+    fi
 }
 
 # Check if all arguments are provided
