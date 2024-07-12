@@ -25,6 +25,9 @@ check_for_updates() {
     else
       echo "Continuing without updating the script..."
     fi
+  else
+    echo "The script is up to date."
+  fi
 }
 
 # Check if all arguments are provided
@@ -67,9 +70,16 @@ esac
 
 URL="https://go.dev/dl/go${VERSION}.${OS}-${ARCH}.tar.gz"
 
-# Step 1: Remove the current version of Go
-echo "Removing current Go installation..."
-sudo rm -rf /usr/local/go
+# Check for updates to the script
+check_for_updates
+
+# Step 1: Remove the current version of Go if it exists
+if [ -d "/usr/local/go" ]; then
+  echo "Removing current Go installation..."
+  sudo rm -rf /usr/local/go
+else
+  echo "No existing Go installation found."
+fi
 
 # Step 2: Download the specified version of Go
 echo "Downloading Go version ${VERSION} from ${URL}..."
@@ -81,10 +91,22 @@ sudo tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
 
 # Step 4: Update PATH environment variable
 echo "Updating PATH to include /usr/local/go/bin..."
-if ! grep -q 'export PATH=$PATH:/usr/local/go/bin' ~/.profile; then
-  echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
+PROFILE_FILE=""
+
+if [ "$OS" == "darwin" ]; then
+  if [ -f ~/.zshrc ]; then
+    PROFILE_FILE=~/.zshrc
+  elif [ -f ~/.bash_profile ]; then
+    PROFILE_FILE=~/.bash_profile
+  fi
+else
+  PROFILE_FILE=~/.profile
 fi
-source ~/.profile
+
+if ! grep -q 'export PATH=$PATH:/usr/local/go/bin' $PROFILE_FILE; then
+  echo 'export PATH=$PATH:/usr/local/go/bin' >> $PROFILE_FILE
+fi
+source $PROFILE_FILE
 
 # Step 5: Verify the installation
 echo "Verifying the Go installation..."
