@@ -93,7 +93,7 @@ sudo tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
 echo "Updating PATH to include /usr/local/go/bin..."
 PROFILE_FILE=""
 
-if [ "$OS" == "darwin" ]; then
+if [ "$OS" = "darwin" ]; then
   if [ -f ~/.zshrc ]; then
     PROFILE_FILE=~/.zshrc
   elif [ -f ~/.bash_profile ]; then
