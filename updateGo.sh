@@ -12,7 +12,11 @@ check_for_updates() {
   git fetch
 
   LOCAL=$(git rev-parse @)
-  REMOTE=$(git rev-parse @{u})
+  REMOTE=$(git rev-parse @{u} 2>/dev/null)
+  if [ -z $REMOTE ]; then
+    echo "No updates to this script available on this branch"
+    return
+  fi
 
   if [ $LOCAL != $REMOTE ]; then
     echo "There are updates available for this script. Do you want to update? (y/n)"
