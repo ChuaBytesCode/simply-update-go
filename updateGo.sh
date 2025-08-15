@@ -110,6 +110,4 @@ source $PROFILE_FILE
 
 # Step 5: Verify the installation
 echo "Verifying the Go installation..."
-go version
-
-echo "Go ${VERSION} has been installed successfully."
+go version && echo "Go ${VERSION} has been installed successfully."
