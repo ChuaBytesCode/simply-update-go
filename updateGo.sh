@@ -12,7 +12,11 @@ check_for_updates() {
   git fetch
 
   LOCAL=$(git rev-parse @)
-  REMOTE=$(git rev-parse @{u})
+  REMOTE=$(git rev-parse @{u} 2>/dev/null)
+  if [ -z $REMOTE ]; then
+    echo "No updates to this script available on this branch"
+    return
+  fi
 
   if [ $LOCAL != $REMOTE ]; then
     echo "There are updates available for this script. Do you want to update? (y/n)"
@@ -73,17 +77,22 @@ URL="https://go.dev/dl/go${VERSION}.${OS}-${ARCH}.tar.gz"
 # Check for updates to the script
 check_for_updates
 
-# Step 1: Remove the current version of Go if it exists
+# Step 1: Attempt to download the specified version of Go
+echo "Downloading Go version ${VERSION} from ${URL}..."
+wget $URL -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
+WGET_RESULT=$?
+if [ $WGET_RESULT != 0 ]; then
+  echo "Error: wget exited with code ${WGET_RESULT}"
+  exit 1
+fi
+
+# Step 2: Remove the current version of Go if it exists
 if [ -d "/usr/local/go" ]; then
   echo "Removing current Go installation..."
   sudo rm -rf /usr/local/go
 else
   echo "No existing Go installation found."
 fi
-
-# Step 2: Download the specified version of Go
-echo "Downloading Go version ${VERSION} from ${URL}..."
-wget $URL -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
 
 # Step 3: Extract the downloaded tarball to /usr/local
 echo "Extracting Go ${VERSION} to /usr/local..."
@@ -110,6 +119,4 @@ source $PROFILE_FILE
 
 # Step 5: Verify the installation
 echo "Verifying the Go installation..."
-go version
-
-echo "Go ${VERSION} has been installed successfully."
+go version && echo "Go ${VERSION} has been installed successfully."
