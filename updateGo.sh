@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Function to print usage
 usage() {
-  echo "Usage: $0 <OS> <architecture> <version>"
-  echo "Example: $0 linux amd64 1.22.5"
+  echo "Usage: $0 <OS> <architecture> <version>" >&2
+  echo "Example: $0 linux amd64 1.22.5" >&2
   exit 1
 }
 
@@ -54,7 +54,7 @@ case $OS in
     OS="darwin"
     ;;
   *)
-    echo "Unsupported OS: $OS"
+    echo "Unsupported OS: $OS" >&2
     usage
     ;;
 esac
@@ -68,7 +68,7 @@ case $ARCH in
     ARCH="amd64"
     ;;
   *)
-    echo "Unsupported architecture: $ARCH"
+    echo "Unsupported architecture: $ARCH" >&2
     usage
     ;;
 esac
@@ -83,7 +83,7 @@ echo "Downloading Go version ${VERSION} from ${URL}..."
 wget $URL -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
 WGET_RESULT=$?
 if [ $WGET_RESULT != 0 ]; then
-  echo "Error: wget exited with code ${WGET_RESULT}"
+  echo "Error: wget exited with code ${WGET_RESULT}" >&2
   exit 1
 fi
 
