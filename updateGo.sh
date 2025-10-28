@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Function to print usage
 usage() {
@@ -12,7 +13,7 @@ check_for_updates() {
   git fetch
 
   LOCAL=$(git rev-parse @)
-  REMOTE=$(git rev-parse @{u} 2>/dev/null)
+  REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "")
   if [ -z $REMOTE ]; then
     echo "No updates to this script available on this branch"
     return
@@ -119,4 +120,5 @@ source $PROFILE_FILE
 
 # Step 5: Verify the installation
 echo "Verifying the Go installation..."
-go version && echo "Go ${VERSION} has been installed successfully."
+go version
+echo "Go ${VERSION} has been installed successfully."
