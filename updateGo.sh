@@ -13,13 +13,13 @@ check_for_updates() {
   git fetch
 
   LOCAL=$(git rev-parse @)
-  REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "")
-  if [ -z $REMOTE ]; then
+  REMOTE=$(git rev-parse '@{u}' 2>/dev/null || echo "")
+  if [ -z "$REMOTE" ]; then
     echo "No updates to this script available on this branch"
     return
   fi
 
-  if [ $LOCAL != $REMOTE ]; then
+  if [ "$LOCAL" != "$REMOTE" ]; then
     echo "There are updates available for this script. Do you want to update? (y/n)"
     read -r response
     if [[ "$response" == "y" || "$response" == "Y" ]]; then
@@ -80,7 +80,7 @@ check_for_updates
 
 # Step 1: Attempt to download the specified version of Go
 echo "Downloading Go version ${VERSION} from ${URL}..."
-wget $URL -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
+wget "$URL" -O "/tmp/go${VERSION}.${OS}-${ARCH}.tar.gz"
 WGET_RESULT=$?
 if [ $WGET_RESULT != 0 ]; then
   echo "Error: wget exited with code ${WGET_RESULT}" >&2
@@ -97,7 +97,7 @@ fi
 
 # Step 3: Extract the downloaded tarball to /usr/local
 echo "Extracting Go ${VERSION} to /usr/local..."
-sudo tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
+sudo tar -C /usr/local -xzf "/tmp/go${VERSION}.${OS}-${ARCH}.tar.gz"
 
 # Step 4: Update PATH environment variable
 echo "Updating PATH to include /usr/local/go/bin and ~/go/bin..."
@@ -113,12 +113,13 @@ else
   PROFILE_FILE=~/.profile
 fi
 
-if ! grep -q 'export PATH=$PATH:/usr/local/go/bin' $PROFILE_FILE; then
-  echo 'export PATH=$PATH:/usr/local/go/bin' >> $PROFILE_FILE
+if ! grep -q "export PATH=\$PATH:/usr/local/go/bin" $PROFILE_FILE; then
+  echo "export PATH=\$PATH:/usr/local/go/bin" >> $PROFILE_FILE
 fi
-if ! grep -q 'export PATH=$PATH:~/go/bin' $PROFILE_FILE; then
-  echo 'export PATH=$PATH:~/go/bin' >> $PROFILE_FILE
+if ! grep -q "export PATH=\$PATH:~/go/bin" $PROFILE_FILE; then
+  echo "export PATH=\$PATH:~/go/bin" >> $PROFILE_FILE
 fi
+# shellcheck source=/dev/null
 source $PROFILE_FILE
 
 # Step 5: Verify the installation
