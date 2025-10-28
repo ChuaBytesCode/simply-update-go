@@ -100,7 +100,7 @@ echo "Extracting Go ${VERSION} to /usr/local..."
 sudo tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
 
 # Step 4: Update PATH environment variable
-echo "Updating PATH to include /usr/local/go/bin..."
+echo "Updating PATH to include /usr/local/go/bin and ~/go/bin..."
 PROFILE_FILE=""
 
 if [ "$OS" = "darwin" ]; then
@@ -115,6 +115,9 @@ fi
 
 if ! grep -q 'export PATH=$PATH:/usr/local/go/bin' $PROFILE_FILE; then
   echo 'export PATH=$PATH:/usr/local/go/bin' >> $PROFILE_FILE
+fi
+if ! grep -q 'export PATH=$PATH:~/go/bin' $PROFILE_FILE; then
+  echo 'export PATH=$PATH:~/go/bin' >> $PROFILE_FILE
 fi
 source $PROFILE_FILE
 
