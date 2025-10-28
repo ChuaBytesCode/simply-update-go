@@ -1,9 +1,10 @@
 #!/bin/bash
+set -euo pipefail
 
 # Function to print usage
 usage() {
-  echo "Usage: $0 <OS> <architecture> <version>"
-  echo "Example: $0 linux amd64 1.22.5"
+  echo "Usage: $0 <OS> <architecture> <version>" >&2
+  echo "Example: $0 linux amd64 1.22.5" >&2
   exit 1
 }
 
@@ -12,7 +13,7 @@ check_for_updates() {
   git fetch
 
   LOCAL=$(git rev-parse @)
-  REMOTE=$(git rev-parse @{u} 2>/dev/null)
+  REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "")
   if [ -z $REMOTE ]; then
     echo "No updates to this script available on this branch"
     return
@@ -53,7 +54,7 @@ case $OS in
     OS="darwin"
     ;;
   *)
-    echo "Unsupported OS: $OS"
+    echo "Unsupported OS: $OS" >&2
     usage
     ;;
 esac
@@ -67,7 +68,7 @@ case $ARCH in
     ARCH="amd64"
     ;;
   *)
-    echo "Unsupported architecture: $ARCH"
+    echo "Unsupported architecture: $ARCH" >&2
     usage
     ;;
 esac
@@ -82,7 +83,7 @@ echo "Downloading Go version ${VERSION} from ${URL}..."
 wget $URL -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
 WGET_RESULT=$?
 if [ $WGET_RESULT != 0 ]; then
-  echo "Error: wget exited with code ${WGET_RESULT}"
+  echo "Error: wget exited with code ${WGET_RESULT}" >&2
   exit 1
 fi
 
@@ -99,7 +100,7 @@ echo "Extracting Go ${VERSION} to /usr/local..."
 sudo tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
 
 # Step 4: Update PATH environment variable
-echo "Updating PATH to include /usr/local/go/bin..."
+echo "Updating PATH to include /usr/local/go/bin and ~/go/bin..."
 PROFILE_FILE=""
 
 if [ "$OS" = "darwin" ]; then
@@ -115,8 +116,12 @@ fi
 if ! grep -q 'export PATH=$PATH:/usr/local/go/bin' $PROFILE_FILE; then
   echo 'export PATH=$PATH:/usr/local/go/bin' >> $PROFILE_FILE
 fi
+if ! grep -q 'export PATH=$PATH:~/go/bin' $PROFILE_FILE; then
+  echo 'export PATH=$PATH:~/go/bin' >> $PROFILE_FILE
+fi
 source $PROFILE_FILE
 
 # Step 5: Verify the installation
 echo "Verifying the Go installation..."
-go version && echo "Go ${VERSION} has been installed successfully."
+go version
+echo "Go ${VERSION} has been installed successfully."
